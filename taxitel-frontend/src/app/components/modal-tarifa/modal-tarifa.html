@@ -1,0 +1,21 @@
+<div class="modal-overlay">
+  <div class="modal-contenido">
+    <h3>⚠️ Ruta Nueva Detectada</h3>
+    <p class="alerta-texto">{{ mensajeRutaFaltante }}</p>
+    <p>Por favor, enseñe al sistema la tarifa base para este tramo:</p>
+    
+    <div class="campo-tarifa">
+      <span>S/</span>
+      <input type="number" [(ngModel)]="tarifaManual" placeholder="0.00" min="0" step="0.5">
+    </div>
+
+    <div class="modal-botones">
+      <button class="btn-cancelar" (click)="cerrarModal.emit()" [disabled]="guardando">Cancelar</button>
+      
+      <!-- El botón ahora reacciona al candado visualmente -->
+      <button class="btn-guardar" (click)="enviarTarifa()" [disabled]="!tarifaManual || guardando">
+        {{ guardando ? 'Guardando...' : 'Guardar Tarifa' }}
+      </button>
+    </div>
+  </div>
+</div>

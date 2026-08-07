@@ -1,0 +1,5 @@
+.cotizador-container {
+  max-width: 600px; /* La pared de la piscina */
+  margin: 0 auto; /* Centrado automático en la pantalla */
+  padding: 20px;
+}

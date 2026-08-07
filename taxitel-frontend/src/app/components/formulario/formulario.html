@@ -1,0 +1,67 @@
+<div class="formulario-card">
+  <h2>📍 Rutas Corporativas</h2>
+  
+  <form [formGroup]="formularioViaje" (ngSubmit)="calcular()">
+    
+    <!-- Empresa a facturar -->
+    <div class="form-group">
+      <label>Empresa a facturar</label>
+      <input type="text" formControlName="empresa" placeholder="Ej. FERREYROS" autocomplete="off">
+    </div>
+
+    <!-- Punto de Origen con Autocompletado -->
+    <div class="form-group">
+      <label>Punto de Origen</label>
+      <input type="text" formControlName="origen" placeholder="¿Dónde inicia el viaje?" list="sugerenciasRutas" autocomplete="off">
+    </div>
+
+    <!-- Paradas Dinámicas Intermedias con Autocompletado -->
+    <div formArrayName="paradas">
+      <div *ngFor="let parada of paradas.controls; let i=index" class="form-group parada-group">
+        <label>Parada Intermedia {{ i + 1 }}</label>
+        <div class="input-con-boton">
+          <input type="text" [formControlName]="i" placeholder="Dirección de la parada" list="sugerenciasRutas" autocomplete="off">
+          <button type="button" class="btn-eliminar" (click)="eliminarParada(i)" title="Eliminar parada">✕</button>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="btn-secundario" (click)="agregarParada()">
+      + Agregar Parada
+    </button>
+
+    <!-- Destino Final con Autocompletado -->
+    <div class="form-group mt-3">
+      <label>Destino Final</label>
+      <input type="text" formControlName="destino" placeholder="¿Dónde termina el viaje?" list="sugerenciasRutas" autocomplete="off">
+    </div>
+
+    <hr class="divisor">
+
+    <!-- Extras: Tiempo de espera y Mensajería -->
+    <div class="extras-grid">
+      <div class="form-group">
+        <label>Tiempo de Espera (Minutos)</label>
+        <input type="number" formControlName="minutosEspera" min="0">
+      </div>
+      
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="tieneMensajeria">
+          📦 ¿Lleva Mensajería? (+S/ 2.00)
+        </label>
+      </div>
+    </div>
+
+    <!-- Botón Principal de Cálculo -->
+    <button type="submit" class="btn-primario" [disabled]="formularioViaje.invalid">
+      Calcular Cotización
+    </button>
+
+  </form>
+</div>
+
+<!-- Cerebro visual de sugerencias de autocompletado conectadas a tu Service -->
+<datalist id="sugerenciasRutas">
+  <option *ngFor="let ruta of cotizacionService.rutasConocidas" [value]="ruta"></option>
+</datalist>

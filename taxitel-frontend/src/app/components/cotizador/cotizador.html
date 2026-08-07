@@ -1,0 +1,15 @@
+<div class="cotizador-container">
+   <app-formulario 
+      (cotizacionExitosa)="recibirRespuestaDeJava($event)" 
+      (rutaNoEncontrada)="abrirModal($event)">
+   </app-formulario>
+   
+   <app-desglose [cotizacion]="datosCotizacion"></app-desglose>
+
+   <app-modal-tarifa 
+      *ngIf="mostrarModal" 
+      [mensajeRutaFaltante]="mensajeRuta" 
+      (cerrarModal)="cerrarModal()"
+      (guardarTarifa)="guardarNuevaTarifa($event)">
+   </app-modal-tarifa>
+</div>
