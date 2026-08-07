@@ -49,6 +49,7 @@ export class FormularioComponent {
 
     // Empaquetamos todo exactamente como Java lo espera: [Origen, ...todos los destinos]
     const request: CotizacionRequest = {
+      empresa: formValue.empresa,
       paradas: [formValue.origen, ...formValue.destinos],
       tieneMensajeria: formValue.tieneMensajeria,
       // Si la cajera no puso nada (null), enviamos 0 al servidor
