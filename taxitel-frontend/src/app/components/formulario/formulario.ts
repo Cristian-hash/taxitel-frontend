@@ -1,7 +1,7 @@
 import { Component, inject, Output, EventEmitter } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CotizacionService } from '../../services/cotizacion';
-import { CotizacionRequest } from '../../models/viaje';
+import { CotizacionRequest, CotizacionResponse } from '../../models/viaje';
 import { CommonModule } from '@angular/common';
 
 @Component({
@@ -12,26 +12,32 @@ import { CommonModule } from '@angular/common';
   styleUrl: './formulario.css'
 })
 export class FormularioComponent {
-  @Output() cotizacionExitosa = new EventEmitter<any>();
-  // NUEVO: El megáfono que grita "¡Falta una tarifa!"
-  @Output() rutaNoEncontrada = new EventEmitter<string>(); 
+  @Output() cotizacionExitosa = new EventEmitter<CotizacionResponse>();
+  @Output() rutaNoEncontrada = new EventEmitter<string>();
 
-  public fb = inject(FormBuilder);
+  private fb = inject(FormBuilder);
+  // Hacemos el servicio público para que el HTML pueda leer las listas de empresas
   public cotizacionService = inject(CotizacionService);
 
+  // MEJORA 3: El Lienzo rediseñado
   formularioViaje: FormGroup = this.fb.group({
     empresa: ['', Validators.required],
     origen: ['', Validators.required],
-    destino: ['', Validators.required],
-    paradas: this.fb.array([]),
-    minutosEspera: [0, Validators.min(0)],
+    // Empieza con 1 cajón vacío. El último cajón siempre será visualmente el "Destino Final"
+    destinos: this.fb.array([this.fb.control('', Validators.required)]),
+    // MEJORA 2: Iniciamos en 'null' para que no estorbe el 0 al tipear
+    minutosEspera: [null, Validators.min(0)],
     tieneMensajeria: [false]
   });
 
-  get paradas() { return this.formularioViaje.get('paradas') as FormArray; }
-  
-  agregarParada() { this.paradas.push(this.fb.control('', Validators.required)); }
-  eliminarParada(index: number) { this.paradas.removeAt(index); }
+  // Atajos para la lista elástica
+  get destinos() { return this.formularioViaje.get('destinos') as FormArray; }
+  agregarDestino() { this.destinos.push(this.fb.control('', Validators.required)); }
+  eliminarDestino(index: number) {
+    if (this.destinos.length > 1) { // Siempre debe quedar al menos 1 destino
+      this.destinos.removeAt(index);
+    }
+  }
 
   calcular() {
     if (this.formularioViaje.invalid) {
@@ -40,26 +46,27 @@ export class FormularioComponent {
     }
 
     const formValue = this.formularioViaje.value;
+
+    // Empaquetamos todo exactamente como Java lo espera: [Origen, ...todos los destinos]
     const request: CotizacionRequest = {
-      paradas: [formValue.origen, ...formValue.paradas, formValue.destino],
+      paradas: [formValue.origen, ...formValue.destinos],
       tieneMensajeria: formValue.tieneMensajeria,
-      minutosEspera: formValue.minutosEspera
+      // Si la cajera no puso nada (null), enviamos 0 al servidor
+      minutosEspera: formValue.minutosEspera || 0 
     };
 
-   this.cotizacionService.calcularCotizacion(request).subscribe({
+    this.cotizacionService.calcularCotizacion(request).subscribe({
       next: (response) => {
         this.cotizacionExitosa.emit(response);
       },
-      error: (err: any) => {
+      error: (err) => {
+        console.error('Error detectado:', err);
         if (err.status === 404) {
-          // Ruta desconocida: Llama al Modal
           this.rutaNoEncontrada.emit(err.error);
         } else if (err.status === 0) {
-          // ERROR CERO: Falta conexión. Java está apagado o bloqueado.
-          alert('🚨 ¡El servidor Java parece apagado o desconectado! Por favor, verifica el backend.');
+          alert('🚨 ¡El servidor Java parece apagado o desconectado!');
         } else {
-          alert('Ocurrió un imprevisto. Presiona F12 y revisa la consola.');
-          console.error('Error de servidor:', err);
+          alert('Ocurrió un imprevisto al calcular. Revisa la consola.');
         }
       }
     });

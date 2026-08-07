@@ -12,9 +12,18 @@ export class CotizacionService {
   //private apiUrl = 'http://localhost:8080/api/cotizaciones';
   private apiUrl = 'http://192.168.1.196:8080/api/cotizaciones';
 
-  // Base de datos visual temporal para el autocompletado
+// Base de datos visual temporal para el autocompletado
   rutasConocidas = ['AVENIDA INDEPENDENCIA', 'AVENIDA DOLORES', 'AVENIDA EJERCITO', 'CALLE CAYETANO', 'CALLE PIEROLA'];
 
+  // NUEVA MEJORA 1: Base de datos visual de empresas (Las más usadas van primero)
+  empresasConocidas = [
+    // --- VIP (Más frecuentes) ---
+    'FLSMIDTH', 'MINERALES WEIR PERÚ', 'RICO POLLO', 'ENAEX', 'CHICHA', 'FERREYROS',
+    // --- Resto de empresas ---
+    'UTP SAC', 'CLÍNICA SAN JUAN DE DIOS', 'SAN LORENZO', 'ROSATEL', 'INCALPACA',
+    'COLEGIO MAX UHLE', 'CLARO', 'AGROINCA PPX', 'KOMATSU MITSUI', 'WONG Y LA CIA',
+    'ORICA PLANTA', 'GRUPO VERDE', 'COL ANGLO AMERICANO PRESCOTT', 'LAVORO', 'CLÍNICA PULSO', 'LIV'
+  ];
   // Implementa normalización de texto por detrás en Angular
   normalizarTexto(texto: string): string {
     if (!texto) return '';
