@@ -4,7 +4,7 @@ import { Desglose } from '../desglose/desglose';
 import { ModalTarifa } from '../modal-tarifa/modal-tarifa';
 import { CotizacionResponse } from '../../models/viaje';
 import { CommonModule } from '@angular/common';
-import { CotizacionService } from '../../services/cotizacion'; // IMPORTAMOS EL SERVICIO
+import { CotizacionService } from '../../services/cotizacion';
 
 @Component({
   selector: 'app-cotizador',
@@ -17,17 +17,19 @@ export class CotizadorComponent {
   datosCotizacion: CotizacionResponse | null = null;
   mostrarModal: boolean = false;
   mensajeRuta: string = '';
+  empresaActual: string = ''; // <-- NUEVA MEMORIA TEMPORAL
 
-  // Inyectamos el servicio para poder guardar
   private cotizacionService = inject(CotizacionService);
 
   recibirRespuestaDeJava(respuesta: CotizacionResponse) {
     this.datosCotizacion = respuesta;
-    this.mostrarModal = false; 
+    this.mostrarModal = false;
   }
 
-  abrirModal(mensaje: string) {
-    this.mensajeRuta = mensaje;
+  // CORRECCIÓN PARA TU TERMINAL: Recibimos el objeto (data) completo
+  abrirModal(data: { mensaje: string, empresa: string }) {
+    this.mensajeRuta = data.mensaje;
+    this.empresaActual = data.empresa; // Guardamos el nombre (Ej. FERREYROS)
     this.mostrarModal = true;
   }
 
@@ -35,23 +37,18 @@ export class CotizadorComponent {
     this.mostrarModal = false;
   }
 
-guardarNuevaTarifa(precio: number) {
+  guardarNuevaTarifa(precio: number) {
     const rutaLimpia = this.mensajeRuta.replace('Falta precio para: ', '');
     const partes = rutaLimpia.split(' a ');
     const origen = partes[0].trim();
     const destino = partes[1].trim();
 
-    // 1. LA MAGIA VISUAL: Cerramos el modal AL INSTANTE, antes de hablar con Java
     this.cerrarModal();
 
-    // 2. Enviamos los datos a Java "en segundo plano"
-    this.cotizacionService.guardarTramo(origen, destino, precio).subscribe({
+    // LA GRAN MAGIA: Ahora enviamos 'this.empresaActual' como primer dato hacia el Service
+    this.cotizacionService.guardarTramo(this.empresaActual, origen, destino, precio).subscribe({
       next: () => {
-        // 3. Aumentamos el respiro a 300ms para asegurar que el navegador 
-        // ya borró el modal de la pantalla por completo antes de congelarse con la alerta
-        setTimeout(() => {
-          console.log('✅ Ruta aprendida silenciosamente en PostgreSQL');
-        }, 300);
+        setTimeout(() => {}, 300);
       },
       error: (err: any) => {
         console.error('Error al guardar la ruta:', err);

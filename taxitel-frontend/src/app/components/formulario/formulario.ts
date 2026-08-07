@@ -13,32 +13,48 @@ import { CommonModule } from '@angular/common';
 })
 export class FormularioComponent {
   @Output() cotizacionExitosa = new EventEmitter<CotizacionResponse>();
-  @Output() rutaNoEncontrada = new EventEmitter<string>();
-
+  @Output() rutaNoEncontrada = new EventEmitter<{ mensaje: string, empresa: string }>();
   private fb = inject(FormBuilder);
-  // Hacemos el servicio público para que el HTML pueda leer las listas de empresas
+  // El servicio debe ser público para que el HTML lea las memorias de autocompletado
   public cotizacionService = inject(CotizacionService);
 
-  // MEJORA 3: El Lienzo rediseñado
+  // 1. El Lienzo rediseñado
   formularioViaje: FormGroup = this.fb.group({
     empresa: ['', Validators.required],
     origen: ['', Validators.required],
-    // Empieza con 1 cajón vacío. El último cajón siempre será visualmente el "Destino Final"
+    // Empieza con 1 cajón vacío.
     destinos: this.fb.array([this.fb.control('', Validators.required)]),
-    // MEJORA 2: Iniciamos en 'null' para que no estorbe el 0 al tipear
+    // El '0' molesto desaparece iniciando en null
     minutosEspera: [null, Validators.min(0)],
     tieneMensajeria: [false]
   });
 
-  // Atajos para la lista elástica
+  // 2. Atajos para la lista elástica
   get destinos() { return this.formularioViaje.get('destinos') as FormArray; }
-  agregarDestino() { this.destinos.push(this.fb.control('', Validators.required)); }
+  
+  // 3. Calculadora visual de tolerancia en tiempo real (LA MEJORA VIP)
+  get toleranciaMinutos(): number {
+    const empresaSeleccionada = this.formularioViaje.get('empresa')?.value?.toUpperCase() || '';
+    if (empresaSeleccionada === 'KOMATSU MITSUI') {
+      return 15;
+    } else if (empresaSeleccionada === 'RICO POLLO') {
+      return 7;
+    }
+    return 5; // Tolerancia por defecto
+  }
+
+  // 4. Controles dinámicos
+  agregarDestino() { 
+    this.destinos.push(this.fb.control('', Validators.required)); 
+  }
+  
   eliminarDestino(index: number) {
     if (this.destinos.length > 1) { // Siempre debe quedar al menos 1 destino
       this.destinos.removeAt(index);
     }
   }
 
+  // 5. El Motor de Cálculo
   calcular() {
     if (this.formularioViaje.invalid) {
       alert('Cajera, por favor completa todos los campos requeridos.');
@@ -49,21 +65,24 @@ export class FormularioComponent {
 
     // Empaquetamos todo exactamente como Java lo espera: [Origen, ...todos los destinos]
     const request: CotizacionRequest = {
-      empresa: formValue.empresa,
+      empresa: formValue.empresa, // <- Enviamos la empresa para la tolerancia matemática
       paradas: [formValue.origen, ...formValue.destinos],
       tieneMensajeria: formValue.tieneMensajeria,
-      // Si la cajera no puso nada (null), enviamos 0 al servidor
-      minutosEspera: formValue.minutosEspera || 0 
+      minutosEspera: formValue.minutosEspera || 0 // Si dejaron null, enviamos 0
     };
 
     this.cotizacionService.calcularCotizacion(request).subscribe({
       next: (response) => {
         this.cotizacionExitosa.emit(response);
       },
-      error: (err) => {
+error: (err) => {
         console.error('Error detectado:', err);
         if (err.status === 404) {
-          this.rutaNoEncontrada.emit(err.error);
+          // CORRECCIÓN: Enviamos el mensaje y la empresa al orquestador padre
+          this.rutaNoEncontrada.emit({
+            mensaje: err.error,
+            empresa: formValue.empresa 
+          });
         } else if (err.status === 0) {
           alert('🚨 ¡El servidor Java parece apagado o desconectado!');
         } else {

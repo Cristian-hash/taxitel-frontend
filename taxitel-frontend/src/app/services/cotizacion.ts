@@ -25,12 +25,40 @@ export class CotizacionService {
     'ORICA PLANTA', 'GRUPO VERDE', 'COL ANGLO AMERICANO PRESCOTT', 'LAVORO', 'CLÍNICA PULSO', 'LIV'
   ];
   // Implementa normalización de texto por detrás en Angular
+// Implementa normalización de texto con Expresiones Regulares (RegEx)
+// Implementa normalización de texto extrema con Expresiones Regulares (RegEx)
   normalizarTexto(texto: string): string {
     if (!texto) return '';
+
     return texto.toUpperCase()
-                .replace('AV.', 'AVENIDA')
-                .replace('C.', 'CALLE')
-                .trim();
+      // 1. ELIMINADOR DE TILDES: Borra acentos para evitar que "JIRÓN" y "JIRON" sean distintos
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      
+      // 2. LIMPIEZA DE ESPACIOS: Quita espacios dobles accidentales por un solo espacio
+      .replace(/\s+/g, ' ')
+      
+      // 3. AVENIDAS (Atrapa: AV., AV, AVE, AVEN, AVDA, AVENDID, ABENIDA)
+      .replace(/\b(AV\.|AV|AVE|AVEN|AVDA|AVENDID|ABENIDA)\b/g, 'AVENIDA')
+      
+      // 4. CALLES (Atrapa: C., C, CA, CAL, CLL, CALL, CALE)
+      .replace(/\b(C\.|C|CA|CAL|CLL|CALL|CALE)\b/g, 'CALLE')
+      
+      // 5. JIRONES (Atrapa: JR., JR, JIR, JRO, JIRN, GIRON)
+      .replace(/\b(JR\.|JR|JIR|JRO|JIRN|GIRON)\b/g, 'JIRON')
+      
+      // 6. URBANIZACIONES (Atrapa: URB., URB, URBA, URBZ, URBN, URBACNIZACION, URVANIZACION)
+      .replace(/\b(URB\.|URB|URBA|URBZ|URBN|URBACNIZACION|URVANIZACION)\b/g, 'URBANIZACION')
+      
+      // 7. PASAJES (Atrapa: PJ., PJ, PJE, PAS, PSAJE, PASAJ)
+      .replace(/\b(PJ\.|PJ|PJE|PAS|PSAJE|PASAJ)\b/g, 'PASAJE')
+      
+      // 8. ASOCIACIONES (Atrapa: ASOC., ASOC, ASO, ASOCIACION)
+      .replace(/\b(ASOC\.|ASOC|ASO|ASOCIACION)\b/g, 'ASOCIACION')
+      
+      // 9. PROLONGACIONES (Atrapa: PROL., PROL, PROLONG, PROLONGACION)
+      .replace(/\b(PROL\.|PROL|PROLONG|PROLONGACION)\b/g, 'PROLONGACION')
+      
+      .trim();
   }
 
   calcularCotizacion(request: CotizacionRequest): Observable<CotizacionResponse> {
@@ -40,9 +68,10 @@ export class CotizacionService {
     return this.http.post<CotizacionResponse>(`${this.apiUrl}/calcular`, requestLimpio);
   }
 
-  // NUEVO: La función vital que Angular no encontraba para guardar
-  guardarTramo(origen: string, destino: string, tarifaBase: number): Observable<any> {
-    const body = { origen, destino, tarifaBase };
+// La función vital actualizada para aceptar la empresa
+// La función vital actualizada para aceptar la empresa
+  guardarTramo(empresa: string, origen: string, destino: string, tarifaBase: number): Observable<any> {
+    const body = { empresa, origen, destino, tarifaBase };
     return this.http.post(`${this.apiUrl}/nuevo-tramo`, body);
   }
 }

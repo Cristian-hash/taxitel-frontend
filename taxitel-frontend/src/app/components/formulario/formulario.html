@@ -1,5 +1,3 @@
-<div class="formulario-card">
-  
 <form [formGroup]="formularioViaje" (ngSubmit)="calcular()" class="tarjeta-formulario">
   <h3 class="titulo">Rutas Corporativas</h3>
 
@@ -29,7 +27,7 @@
       </div>
     </div>
   </div>
-  <!-- 2. El botón "+" inmediatamente debajo -->
+  <!-- 2. El botón "+" inmediatamente debajo (Como el dibujo de tu cliente) -->
   <button type="button" class="btn-secundario mt-2 mb-3" (click)="agregarDestino()">
     + Agregar Parada
   </button>
@@ -37,7 +35,13 @@
 
   <div class="extras-grid">
     <div class="form-group">
-      <label>Tiempo de Espera (Minutos)</label>
+      <label>
+        Tiempo de Espera 
+        <!-- La etiqueta reactiva que cambia de 5 a 7 o 15 según la empresa -->
+        <span style="color: #27ae60; font-weight: bold; font-size: 0.85em; margin-left: 5px;">
+          (Tolerancia: {{ toleranciaMinutos }} min)
+        </span>
+      </label>
       <input type="number" formControlName="minutosEspera" min="0" placeholder="0">
     </div>
         
@@ -53,7 +57,7 @@
     Calcular Cotización
   </button>
 
-  <!-- Datalists para autocompletado -->
+  <!-- Datalists para autocompletado limpios -->
   <datalist id="listaEmpresas">
     <option *ngFor="let emp of cotizacionService.empresasConocidas" [value]="emp"></option>
   </datalist>
@@ -62,9 +66,3 @@
     <option *ngFor="let ruta of cotizacionService.rutasConocidas" [value]="ruta"></option>
   </datalist>
 </form>
-</div>
-
-<!-- Cerebro visual de sugerencias de autocompletado conectadas a tu Service -->
-<datalist id="sugerenciasRutas">
-  <option *ngFor="let ruta of cotizacionService.rutasConocidas" [value]="ruta"></option>
-</datalist>
