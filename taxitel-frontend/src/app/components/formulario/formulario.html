@@ -2,17 +2,10 @@
   <h3 class="titulo">Rutas Corporativas</h3>
 
 <div class="form-group">
-  <label>Empresa a facturar</label>
-  <!-- Cambiamos de input a select para que sea 100% seleccionable con clics -->
-  <select formControlName="empresa" class="form-select">
-    <!-- Valor por defecto inicial -->
-    <option value="" disabled selected>-- Seleccione Empresa --</option>
-    <!-- Bucle automático con nuestra memoria del Service -->
-    <option *ngFor="let emp of cotizacionService.empresasConocidas" [value]="emp">
-      {{ emp }}
-    </option>
-  </select>
-</div>
+    <label>Empresa a facturar</label>
+    <!-- Usamos type="search" para que aparezca la "✕" de borrado rápido -->
+    <input type="search" formControlName="empresa" placeholder="🔎 Escriba para buscar empresa..." list="listaEmpresas" autocomplete="off" class="form-control">
+  </div>
 
   <!-- 1. El Inicio arriba -->
   <div class="form-group">
@@ -56,11 +49,20 @@
     </div>
   </div>
 
-  <button type="submit" class="btn-primario" [disabled]="formularioViaje.invalid">
-    Calcular Cotización
-  </button>
+<div class="botones-accion">
+    
+    <button type="submit" class="btn-primario" [disabled]="formularioViaje.invalid">
+      Calcular Cotización
+    </button>
+
+    <button type="button" class="btn-secundario" (click)="nuevaConsulta()">
+      🔄 Nueva Consulta
+    </button>
+    
+  </div>
 
   <!-- Datalists para autocompletado limpios -->
+<!-- Datalists para autocompletado limpios -->
   <datalist id="listaEmpresas">
     <option *ngFor="let emp of cotizacionService.empresasConocidas" [value]="emp"></option>
   </datalist>

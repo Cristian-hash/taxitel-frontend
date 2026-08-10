@@ -2,6 +2,7 @@
    <app-formulario 
       (cotizacionExitosa)="recibirRespuestaDeJava($event)" 
       (rutaNoEncontrada)="abrirModal($event)">
+      (limpiarCotizacion)="limpiarPantalla()">
    </app-formulario>
    
    <app-desglose [cotizacion]="datosCotizacion"></app-desglose>

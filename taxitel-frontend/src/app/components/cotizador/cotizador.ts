@@ -26,6 +26,11 @@ export class CotizadorComponent {
     this.mostrarModal = false;
   }
 
+  // NUEVO: Oculta la tarjeta verde cuando presionan "Nueva Consulta"
+  limpiarPantalla() {
+    this.datosCotizacion = null;
+  }
+
   // CORRECCIÓN PARA TU TERMINAL: Recibimos el objeto (data) completo
   abrirModal(data: { mensaje: string, empresa: string }) {
     this.mensajeRuta = data.mensaje;

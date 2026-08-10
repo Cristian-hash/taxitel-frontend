@@ -14,6 +14,7 @@ import { CommonModule } from '@angular/common';
 export class FormularioComponent {
   @Output() cotizacionExitosa = new EventEmitter<CotizacionResponse>();
   @Output() rutaNoEncontrada = new EventEmitter<{ mensaje: string, empresa: string }>();
+  @Output() limpiarCotizacion = new EventEmitter<void>();
   private fb = inject(FormBuilder);
   // El servicio debe ser público para que el HTML lea las memorias de autocompletado
   public cotizacionService = inject(CotizacionService);
@@ -65,9 +66,6 @@ export class FormularioComponent {
       next: (response) => {
         response.empresa = formValue.empresa;
         this.cotizacionExitosa.emit(response);
-        // LA NUEVA MAGIA: Reiniciamos SOLO el campo de la empresa tras calcular
-        // Esto obligará al HTML a mostrar "-- Seleccione Empresa --" nuevamente
-        this.formularioViaje.get('empresa')?.setValue('');
       },
       error: (err) => {
         console.error('Error detectado:', err);
@@ -85,4 +83,21 @@ export class FormularioComponent {
       }
     });
   }
-}
+  // 6. El Botón de Nueva Consulta
+  nuevaConsulta() {
+    // 1. Restauramos el formulario al estado original vacío
+    this.formularioViaje.reset({
+      empresa: '',
+      origen: '',
+      minutosEspera: null,
+      tieneMensajeria: false
+    });
+    
+    // 2. Limpiamos las paradas y dejamos solo un cajón vacío para iniciar
+    this.destinos.clear();
+    this.destinos.push(this.fb.control('', Validators.required));
+
+    // 3. Le avisamos al Orquestador (Padre) que borre la tarjeta verde de éxito
+    this.limpiarCotizacion.emit();
+  }
+} // <- Fin de tu clase FormularioComponent
