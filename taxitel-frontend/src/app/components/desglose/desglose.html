@@ -1,19 +1,38 @@
 <div class="tarjeta-desglose" *ngIf="cotizacion">
-  <h3>✅ Cotización Exitosa</h3>
-  
-  <div class="tramos-lista">
-    <div class="tramo-item" *ngFor="let tramo of cotizacion.tramos">
-      <span>{{ tramo.origen }} ➔ {{ tramo.destino }}</span>
-      <span>S/ {{ tramo.tarifaBase | number:'1.2-2' }}</span>
-    </div>
+  <!-- LA CABECERA AHORA TIENE EL TÍTULO Y LA ETIQUETA -->
+  <div class="cabecera-desglose">
+    <h3 class="titulo-exito">✅ Cotización Exitosa</h3>
+    
+    <!-- NUEVA ETIQUETA VIP -->
+    <span class="etiqueta-empresa" *ngIf="cotizacion.empresa">
+      🏢 {{ cotizacion.empresa }}
+    </span>
   </div>
-  
-  <hr>
-  
-  <div class="totales">
-    <p>Tarifa Base Total: <span>S/ {{ cotizacion.tarifaBaseTotal | number:'1.2-2' }}</span></p>
-    <p *ngIf="cotizacion.recargoMensajeria > 0">Mensajería: <span>S/ {{ cotizacion.recargoMensajeria | number:'1.2-2' }}</span></p>
-    <p *ngIf="cotizacion.recargoEspera > 0">Espera: <span>S/ {{ cotizacion.recargoEspera | number:'1.2-2' }}</span></p>
-    <h2 class="gran-total">Total a Cobrar: <span>S/ {{ cotizacion.total | number:'1.2-2' }}</span></h2>
+
+  <div class="tramo-item" *ngFor="let tramo of cotizacion.tramos">
+    <span class="ruta">{{ tramo.origen }} ➔ {{ tramo.destino }}</span>
+    <span class="precio">S/ {{ tramo.tarifaBase | number:'1.2-2' }}</span>
+  </div>
+
+  <hr class="linea-divisoria">
+
+  <div class="resumen-item">
+    <span>Tarifa Base Total:</span>
+    <span class="precio">S/ {{ cotizacion.tarifaBaseTotal | number:'1.2-2' }}</span>
+  </div>
+
+  <div class="resumen-item" *ngIf="cotizacion.recargoMensajeria > 0">
+    <span>Mensajería:</span>
+    <span class="precio">S/ {{ cotizacion.recargoMensajeria | number:'1.2-2' }}</span>
+  </div>
+
+  <div class="resumen-item" *ngIf="cotizacion.recargoEspera > 0">
+    <span>Espera:</span>
+    <span class="precio">S/ {{ cotizacion.recargoEspera | number:'1.2-2' }}</span>
+  </div>
+
+  <div class="total-cobrar">
+    <span>Total a Cobrar:</span>
+    <span class="precio-total">S/ {{ cotizacion.total | number:'1.2-2' }}</span>
   </div>
 </div>

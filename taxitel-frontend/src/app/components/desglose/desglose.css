@@ -1,5 +1,19 @@
-.tarjeta-desglose { background: #f0fdf4; border: 2px solid #22c55e; border-radius: 8px; padding: 20px; margin-top: 20px; color: #166534; }
-.tramo-item { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.95em; }
-hr { border: 1px solid #bbf7d0; margin: 15px 0; }
-.totales p { display: flex; justify-content: space-between; margin: 5px 0; font-weight: bold; }
-.gran-total { display: flex; justify-content: space-between; margin-top: 15px; font-size: 1.5em; color: #15803d; }
+/* Alinea el título y la etiqueta de la empresa en la misma fila */
+.cabecera-desglose {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+/* El diseño de la etiqueta verde de la empresa */
+.etiqueta-empresa {
+  background-color: #115c34; /* Un verde oscuro corporativo */
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}

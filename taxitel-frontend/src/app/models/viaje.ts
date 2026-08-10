@@ -1,6 +1,6 @@
 export interface CotizacionRequest {
   
-  empresa: string;
+  empresa?: string;
   paradas: string[];
   tieneMensajeria: boolean;
   minutosEspera: number;
@@ -13,6 +13,7 @@ export interface Tramo {
 }
 
 export interface CotizacionResponse {
+  empresa?: string;
   tramos: Tramo[];
   tarifaBaseTotal: number;
   recargoMensajeria: number;

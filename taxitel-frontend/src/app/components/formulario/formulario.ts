@@ -73,6 +73,7 @@ export class FormularioComponent {
 
     this.cotizacionService.calcularCotizacion(request).subscribe({
       next: (response) => {
+        response.empresa = formValue.empresa;
         this.cotizacionExitosa.emit(response);
         // LA NUEVA MAGIA: Reiniciamos SOLO el campo de la empresa tras calcular
         // Esto obligará al HTML a mostrar "-- Seleccione Empresa --" nuevamente
