@@ -1,4 +1,5 @@
 export interface CotizacionRequest {
+  
   empresa: string;
   paradas: string[];
   tieneMensajeria: boolean;

@@ -74,8 +74,11 @@ export class FormularioComponent {
     this.cotizacionService.calcularCotizacion(request).subscribe({
       next: (response) => {
         this.cotizacionExitosa.emit(response);
+        // LA NUEVA MAGIA: Reiniciamos SOLO el campo de la empresa tras calcular
+        // Esto obligará al HTML a mostrar "-- Seleccione Empresa --" nuevamente
+        this.formularioViaje.get('empresa')?.setValue('');
       },
-error: (err) => {
+      error: (err) => {
         console.error('Error detectado:', err);
         if (err.status === 404) {
           // CORRECCIÓN: Enviamos el mensaje y la empresa al orquestador padre
