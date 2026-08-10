@@ -32,16 +32,6 @@ export class FormularioComponent {
   // 2. Atajos para la lista elástica
   get destinos() { return this.formularioViaje.get('destinos') as FormArray; }
   
-  // 3. Calculadora visual de tolerancia en tiempo real (LA MEJORA VIP)
-  get toleranciaMinutos(): number {
-    const empresaSeleccionada = this.formularioViaje.get('empresa')?.value?.toUpperCase() || '';
-    if (empresaSeleccionada === 'KOMATSU MITSUI') {
-      return 15;
-    } else if (empresaSeleccionada === 'RICO POLLO') {
-      return 7;
-    }
-    return 5; // Tolerancia por defecto
-  }
 
   // 4. Controles dinámicos
   agregarDestino() { 

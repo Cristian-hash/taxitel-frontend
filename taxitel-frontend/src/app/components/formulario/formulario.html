@@ -41,15 +41,10 @@
   </button>
   <hr class="divisor">
 
-  <div class="extras-grid">
+ <div class="extras-grid">
     <div class="form-group">
-      <label>
-        Tiempo de Espera 
-        <!-- La etiqueta reactiva que cambia de 5 a 7 o 15 según la empresa -->
-        <span style="color: #27ae60; font-weight: bold; font-size: 0.85em; margin-left: 5px;">
-          (Tolerancia: {{ toleranciaMinutos }} min)
-        </span>
-      </label>
+      <!-- Eliminamos la etiqueta verde de tolerancia -->
+      <label>Tiempo de Espera (Minutos)</label>
       <input type="number" formControlName="minutosEspera" min="0" placeholder="0">
     </div>
         
