@@ -1,4 +1,4 @@
-import { Component, inject, Output, EventEmitter } from '@angular/core';
+import { Component, inject, Output, EventEmitter,OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CotizacionService } from '../../services/cotizacion';
 import { CotizacionRequest, CotizacionResponse } from '../../models/viaje';
@@ -19,6 +19,18 @@ export class FormularioComponent {
   // El servicio debe ser público para que el HTML lea las memorias de autocompletado
   public cotizacionService = inject(CotizacionService);
 
+  // AL CARGAR LA PANTALLA: Descargamos las rutas de PostgreSQL
+  ngOnInit() {
+    this.cotizacionService.obtenerRutasDeBD().subscribe({
+      next: (rutasDesdeJava) => {
+        // Llenamos el autocompletado con los datos reales
+        this.cotizacionService.rutasConocidas = rutasDesdeJava;
+      },
+      error: (err) => console.error('Error al cargar rutas desde la base de datos', err)
+    });
+  }
+
+  
   // 1. El Lienzo rediseñado
   formularioViaje: FormGroup = this.fb.group({
     empresa: ['', Validators.required],

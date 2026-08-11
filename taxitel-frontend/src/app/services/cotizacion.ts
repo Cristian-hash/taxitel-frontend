@@ -9,11 +9,13 @@ import { CotizacionRequest, CotizacionResponse } from '../models/viaje';
 export class CotizacionService {
   // Conectamos Angular al backend con HttpClient
   private http = inject(HttpClient);
-  //private apiUrl = 'http://localhost:8080/api/cotizaciones';
-  private apiUrl = 'http://192.168.1.196:8080/api/cotizaciones';
+  private apiUrl = 'http://localhost:8080/api/cotizaciones';
+  //private apiUrl = 'http://192.168.1.196:8080/api/cotizaciones';
 
 // Base de datos visual temporal para el autocompletado
-  rutasConocidas = ['AVENIDA INDEPENDENCIA', 'AVENIDA DOLORES', 'AVENIDA EJERCITO', 'CALLE CAYETANO', 'CALLE PIEROLA'];
+// Base de datos visual temporal para el autocompletado
+  // CORRECCIÓN: Le decimos explícitamente a TypeScript que esto será una lista de textos (string[])
+  rutasConocidas: string[] = [];
 
   // NUEVA MEJORA 1: Base de datos visual de empresas (Las más usadas van primero)
   empresasConocidas = [
@@ -24,6 +26,10 @@ export class CotizacionService {
     'COLEGIO MAX UHLE', 'CLARO', 'AGROINCA PPX', 'KOMATSU MITSUI', 'WONG Y LA CIA',
     'ORICA PLANTA', 'GRUPO VERDE', 'COL ANGLO AMERICANO PRESCOTT', 'LAVORO', 'CLÍNICA PULSO', 'LIV'
   ];
+  // 2. NUEVA FUNCIÓN: Llama al backend para descargar todas las direcciones
+  obtenerRutasDeBD(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.apiUrl}/rutas`);
+  }
   // Implementa normalización de texto por detrás en Angular
 // Implementa normalización de texto con Expresiones Regulares (RegEx)
 // Implementa normalización de texto extrema con Expresiones Regulares (RegEx)
