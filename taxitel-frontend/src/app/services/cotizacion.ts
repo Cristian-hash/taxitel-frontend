@@ -9,8 +9,8 @@ import { CotizacionRequest, CotizacionResponse } from '../models/viaje';
 export class CotizacionService {
   // Conectamos Angular al backend con HttpClient
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8080/api/cotizaciones';
-  //private apiUrl = 'http://192.168.1.196:8080/api/cotizaciones';
+  //private apiUrl = 'http://localhost:8080/api/cotizaciones';
+  private apiUrl = 'http://192.168.1.196:8080/api/cotizaciones';
 
 // Base de datos visual temporal para el autocompletado
 // Base de datos visual temporal para el autocompletado
@@ -32,6 +32,8 @@ export class CotizacionService {
   }
   // Implementa normalización de texto por detrás en Angular
 // Implementa normalización de texto con Expresiones Regulares (RegEx)
+// Implementa normalización de texto extrema con Expresiones Regulares (RegEx)
+
 // Implementa normalización de texto extrema con Expresiones Regulares (RegEx)
   normalizarTexto(texto: string): string {
     if (!texto) return '';
@@ -63,7 +65,30 @@ export class CotizacionService {
       
       // 9. PROLONGACIONES (Atrapa: PROL., PROL, PROLONG, PROLONGACION)
       .replace(/\b(PROL\.|PROL|PROLONG|PROLONGACION)\b/g, 'PROLONGACION')
+
+      // ====================================================================
+      // --- NUEVOS BLOQUES ARQUITECTÓNICOS DE ESTANDARIZACIÓN ---
+      // ====================================================================
+
+      // 10. ASENTAMIENTOS HUMANOS (Atrapa: A.H., AH., AA.HH., A. H.)
+      .replace(/\b(A\.H\.|AH\.|AA\.HH\.|A\.\s*H\.)/g, 'ASENTAMIENTO HUMANO')
+
+      // 11. MANZANAS Y LOTES (Atrapa: MZ., MZA, MANZANA / LT., LT)
+      .replace(/\b(MZ\.|MZA\.|MZA|MANZANA)\b/g, 'MZ')
+      .replace(/\b(LT\.|LT)\b/g, 'LOTE')
+
+      // 12. DISTRITOS ABREVIADOS (Atrapa: JLB Y R, A.S.A., ASA)
+      .replace(/\b(JLB Y R|J\.L\.B\. Y R\.)/g, 'JOSE LUIS BUSTAMANTE Y RIVERO')
+      .replace(/\b(A\.S\.A\.|ASA)\b/g, 'ALTO SELVA ALEGRE')
+
+      // 13. COOPERATIVAS, RESIDENCIALES Y AGRUPACIONES
+      .replace(/\b(COOP\.|COOP)\b/g, 'COOPERATIVA')
+      .replace(/\b(RESID\.|RESID)\b/g, 'RESIDENCIAL')
+      .replace(/\b(AGRUP\.|AGRUP)\b/g, 'AGRUPACION')
+      .replace(/\b(COMIT\.|COMIT)\b/g, 'COMITE')
       
+      // 14. BARRIDO FINAL: Elimina cualquier doble espacio generado por los reemplazos
+      .replace(/\s+/g, ' ')
       .trim();
   }
 

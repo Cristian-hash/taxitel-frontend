@@ -1,4 +1,4 @@
-/* 1. ESTANDARIZAR TODOS LOS CAMPOS (Soluciona el buscador encogido) */
+/* 1. ESTANDARIZAR TODOS OS CAMPOS (Soluciona el buscador encogido) */
 input[type="text"],
 input[type="number"],
 input[type="search"],
@@ -10,6 +10,17 @@ select {
   box-sizing: border-box; /* Evita que el padding desborde el ancho */
   font-size: 1rem;
   font-family: inherit;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+/* MEJORA CORPORATIVA: Resalta sutilmente de azul la caja donde la cajera está escribiendo */
+input[type="text"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+select:focus {
+  border-color: #3498db;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.15);
+  outline: none;
 }
 
 /* 2. ALINEACIÓN DEL TIEMPO Y MENSAJERÍA */
@@ -45,10 +56,22 @@ select {
   text-align: center;
   border: none;
   font-size: 1rem;
+  transition: background-color 0.2s ease-in-out, opacity 0.2s ease-in-out;
+}
+
+/* MEJORA CORPORATIVA: Cambia el cursor si faltan campos obligatorios por llenar */
+.btn-primario:disabled {
+  opacity: 0.6;
+  cursor: not-allowed; 
 }
 
 /* Le damos un color corporativo y limpio al botón de nueva consulta */
 .btn-secundario {
   background-color: #95a5a6;
   color: white;
+}
+
+/* MEJORA CORPORATIVA: Oscurece ligeramente al pasar el mouse por encima */
+.btn-secundario:hover {
+  background-color: #7f8c8d;
 }
