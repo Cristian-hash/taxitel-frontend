@@ -1,4 +1,4 @@
-import { Component, inject, Output, EventEmitter,OnInit } from '@angular/core';
+import { Component, inject, Output, EventEmitter, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { CotizacionService } from '../../services/cotizacion';
 import { CotizacionRequest, CotizacionResponse } from '../../models/viaje';
@@ -11,53 +11,66 @@ import { CommonModule } from '@angular/common';
   templateUrl: './formulario.html',
   styleUrl: './formulario.css'
 })
-export class FormularioComponent {
+export class FormularioComponent implements OnInit {
   @Output() cotizacionExitosa = new EventEmitter<CotizacionResponse>();
   @Output() rutaNoEncontrada = new EventEmitter<{ mensaje: string, empresa: string }>();
   @Output() limpiarCotizacion = new EventEmitter<void>();
   private fb = inject(FormBuilder);
-  // El servicio debe ser público para que el HTML lea las memorias de autocompletado
   public cotizacionService = inject(CotizacionService);
 
-  // AL CARGAR LA PANTALLA: Descargamos las rutas de PostgreSQL
+  // ========================================================
+  // 1. NUEVA MEMORIA: Ligera para evitar colapso de RAM
+  // ========================================================
+  rutasFiltradas: string[] = [];
+
   ngOnInit() {
     this.cotizacionService.obtenerRutasDeBD().subscribe({
       next: (rutasDesdeJava) => {
-        // Llenamos el autocompletado con los datos reales
         this.cotizacionService.rutasConocidas = rutasDesdeJava;
       },
       error: (err) => console.error('Error al cargar rutas desde la base de datos', err)
     });
   }
 
-  
-  // 1. El Lienzo rediseñado
+  // ========================================================
+  // 2. NUEVO MOTOR: Búsqueda de alto rendimiento (Top 30)
+  // ========================================================
+  buscarRutaEstrategica(event: any) {
+    const textoEscrito = event.target.value.toUpperCase();
+
+    // Si escriben menos de 2 letras, vaciamos para que respire la RAM
+    if (textoEscrito.length < 2) {
+      this.rutasFiltradas = [];
+      return;
+    }
+
+    // Filtramos las miles de rutas, pero SOLO mandamos 30 al HTML
+    this.rutasFiltradas = this.cotizacionService.rutasConocidas
+      .filter(ruta => ruta.includes(textoEscrito))
+      .slice(0, 30); // <- El secreto de la velocidad extrema
+  }
+
+  // 3. El Lienzo rediseñado
   formularioViaje: FormGroup = this.fb.group({
     empresa: ['', Validators.required],
     origen: ['', Validators.required],
-    // Empieza con 1 cajón vacío.
     destinos: this.fb.array([this.fb.control('', Validators.required)]),
-    // El '0' molesto desaparece iniciando en null
     minutosEspera: [null, Validators.min(0)],
     tieneMensajeria: [false]
   });
 
-  // 2. Atajos para la lista elástica
   get destinos() { return this.formularioViaje.get('destinos') as FormArray; }
-  
 
-  // 4. Controles dinámicos
   agregarDestino() { 
     this.destinos.push(this.fb.control('', Validators.required)); 
   }
   
   eliminarDestino(index: number) {
-    if (this.destinos.length > 1) { // Siempre debe quedar al menos 1 destino
+    if (this.destinos.length > 1) { 
       this.destinos.removeAt(index);
     }
   }
 
-  // 5. El Motor de Cálculo
   calcular() {
     if (this.formularioViaje.invalid) {
       alert('Cajera, por favor completa todos los campos requeridos.');
@@ -66,12 +79,11 @@ export class FormularioComponent {
 
     const formValue = this.formularioViaje.value;
 
-    // Empaquetamos todo exactamente como Java lo espera: [Origen, ...todos los destinos]
     const request: CotizacionRequest = {
-      empresa: formValue.empresa, // <- Enviamos la empresa para la tolerancia matemática
+      empresa: formValue.empresa, 
       paradas: [formValue.origen, ...formValue.destinos],
       tieneMensajeria: formValue.tieneMensajeria,
-      minutosEspera: formValue.minutosEspera || 0 // Si dejaron null, enviamos 0
+      minutosEspera: formValue.minutosEspera || 0 
     };
 
     this.cotizacionService.calcularCotizacion(request).subscribe({
@@ -82,7 +94,6 @@ export class FormularioComponent {
       error: (err) => {
         console.error('Error detectado:', err);
         if (err.status === 404) {
-          // CORRECCIÓN: Enviamos el mensaje y la empresa al orquestador padre
           this.rutaNoEncontrada.emit({
             mensaje: err.error,
             empresa: formValue.empresa 
@@ -95,9 +106,8 @@ export class FormularioComponent {
       }
     });
   }
-  // 6. El Botón de Nueva Consulta
+
   nuevaConsulta() {
-    // 1. Restauramos el formulario al estado original vacío
     this.formularioViaje.reset({
       empresa: '',
       origen: '',
@@ -105,11 +115,8 @@ export class FormularioComponent {
       tieneMensajeria: false
     });
     
-    // 2. Limpiamos las paradas y dejamos solo un cajón vacío para iniciar
     this.destinos.clear();
     this.destinos.push(this.fb.control('', Validators.required));
-
-    // 3. Le avisamos al Orquestador (Padre) que borre la tarjeta verde de éxito
     this.limpiarCotizacion.emit();
   }
-} // <- Fin de tu clase FormularioComponent
+}

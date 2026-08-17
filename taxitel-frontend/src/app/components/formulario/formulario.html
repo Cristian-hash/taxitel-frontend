@@ -1,42 +1,33 @@
 <form [formGroup]="formularioViaje" (ngSubmit)="calcular()" class="tarjeta-formulario">
   <h3 class="titulo">Rutas Corporativas</h3>
 
-<div class="form-group">
+  <div class="form-group">
     <label>Empresa a facturar</label>
-    <!-- Usamos type="search" para que aparezca la "✕" de borrado rápido -->
     <input type="search" formControlName="empresa" placeholder="🔎 Escriba para buscar empresa..." list="listaEmpresas" autocomplete="off" class="form-control">
   </div>
 
-  <!-- 1. El Inicio arriba -->
   <div class="form-group">
     <label>Punto de Inicio</label>
-    <input type="text" formControlName="origen" placeholder="¿Dónde inicia el viaje?" list="listaRutas" autocomplete="off">
+    <input type="text" formControlName="origen" placeholder="¿Dónde inicia el viaje?" list="listaRutas" autocomplete="off" (input)="buscarRutaEstrategica($event)">
   </div>
 
-
-
-  <!-- 3. La lista dinámica ultra limpia (Parada 1, Parada 2, Parada 3...) -->
   <div formArrayName="destinos">
     <div *ngFor="let dest of destinos.controls; let i=index" class="form-group parada-group">
-      
-      <!-- Etiqueta uniforme y sin resaltar, tal como lo pidió el cliente -->
       <label>Parada {{ i + 1 }}</label>
-      
       <div class="input-con-boton">
-        <input type="text" [formControlName]="i" placeholder="Ingrese la dirección" list="listaRutas" autocomplete="off">
+        <input type="text" [formControlName]="i" placeholder="Ingrese la dirección" list="listaRutas" autocomplete="off" (input)="buscarRutaEstrategica($event)">
         <button *ngIf="destinos.length > 1" type="button" class="btn-eliminar" (click)="eliminarDestino(i)" title="Eliminar parada">✕</button>
       </div>
     </div>
   </div>
-  <!-- 2. El botón "+" inmediatamente debajo (Como el dibujo de tu cliente) -->
+
   <button type="button" class="btn-secundario mt-2 mb-3" (click)="agregarDestino()">
     + Agregar Parada
   </button>
   <hr class="divisor">
 
- <div class="extras-grid">
+  <div class="extras-grid">
     <div class="form-group">
-      <!-- Eliminamos la etiqueta verde de tolerancia -->
       <label>Tiempo de Espera (Minutos)</label>
       <input type="number" formControlName="minutosEspera" min="0" placeholder="0">
     </div>
@@ -49,25 +40,20 @@
     </div>
   </div>
 
-<div class="botones-accion">
-    
+  <div class="botones-accion">
     <button type="submit" class="btn-primario" [disabled]="formularioViaje.invalid">
       Calcular Cotización
     </button>
-
     <button type="button" class="btn-secundario" (click)="nuevaConsulta()">
       🔄 Nueva Consulta
     </button>
-    
   </div>
 
-  <!-- Datalists para autocompletado limpios -->
-<!-- Datalists para autocompletado limpios -->
   <datalist id="listaEmpresas">
     <option *ngFor="let emp of cotizacionService.empresasConocidas" [value]="emp"></option>
   </datalist>
 
   <datalist id="listaRutas">
-    <option *ngFor="let ruta of cotizacionService.rutasConocidas" [value]="ruta"></option>
+    <option *ngFor="let ruta of rutasFiltradas" [value]="ruta"></option>
   </datalist>
 </form>
