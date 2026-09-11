@@ -101,8 +101,26 @@ export class CotizacionService {
 
 // La función vital actualizada para aceptar la empresa
 // La función vital actualizada para aceptar la empresa
+// ====================================================================
+  // LA FUNCIÓN VITAL (Versión Definitiva con Borrador Mágico)
+  // ====================================================================
   guardarTramo(empresa: string, origen: string, destino: string, tarifaBase: number): Observable<any> {
-    const body = { empresa, origen, destino, tarifaBase };
+    
+    // 1. EL BORRADOR MÁGICO: Como tu sistema ya separa el origen y el destino,
+    // solo necesitamos borrarle la frase de error al origen.
+    let origenLimpio = origen.replace('Falta precio global para:', '').trim();
+    
+    // Por pura seguridad, también le pasamos el borrador al destino
+    let destinoLimpio = destino.replace('Falta precio global para:', '').trim();
+
+    // 2. EL SELLO DEL ARQUITECTO: Normalizamos ANTES de guardar
+    const body = { 
+      empresa: empresa, 
+      origen: this.normalizarTexto(origenLimpio), 
+      destino: this.normalizarTexto(destinoLimpio), 
+      tarifaBase: tarifaBase 
+    };
+
     return this.http.post(`${this.apiUrl}/nuevo-tramo`, body);
   }
 }

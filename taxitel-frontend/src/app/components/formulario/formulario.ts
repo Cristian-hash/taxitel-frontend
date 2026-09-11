@@ -33,10 +33,20 @@ export class FormularioComponent implements OnInit {
   }
 
   // ========================================================
-  // 2. NUEVO MOTOR: Búsqueda de alto rendimiento (Top 30)
+// ========================================================
+  // 2. NUEVO MOTOR: Búsqueda de alto rendimiento + TRADUCTOR EN VIVO
   // ========================================================
   buscarRutaEstrategica(event: any) {
-    const textoEscrito = event.target.value.toUpperCase();
+    const textoEscrito = event.target.value || '';
+    let inputLimpio = textoEscrito.toUpperCase();
+
+    // 🌟 EL TRUCO ANTI-REBOTE: 
+    // Si la cajera ya seleccionó una ruta oficial de la lista, 
+    // vaciamos las sugerencias para que el cuadrito negro desaparezca al instante.
+    if (this.esRutaValida(inputLimpio)) {
+      this.rutasFiltradas = [];
+      return;
+    }
 
     // Si escriben menos de 2 letras, vaciamos para que respire la RAM
     if (textoEscrito.length < 2) {
@@ -44,10 +54,19 @@ export class FormularioComponent implements OnInit {
       return;
     }
 
-    // Filtramos las miles de rutas, pero SOLO mandamos 30 al HTML
+    // 🌟 2.1 EL TRADUCTOR: Limpia los vicios de la cajera en tiempo real
+    inputLimpio = inputLimpio.replace(/\b(MZ\.?|LOTE|ZONA)\s+[A-Z0-9\-]+\b/gi, '');
+    inputLimpio = inputLimpio.replace(/\s+/g, ' ').trim();
+
+    // 🌟 2.2 BÚSQUEDA INTELIGENTE (Fuzzy Search)
+    const palabrasBusqueda = inputLimpio.split(' '); 
+
     this.rutasFiltradas = this.cotizacionService.rutasConocidas
-      .filter(ruta => ruta.includes(textoEscrito))
-      .slice(0, 30); // <- El secreto de la velocidad extrema
+      .filter(rutaBd => {
+        const rutaEnBd = rutaBd.toUpperCase();
+        return palabrasBusqueda.every((palabra: string) => rutaEnBd.includes(palabra));
+      })
+      .slice(0, 30); 
   }
 
   // 3. El Lienzo rediseñado
@@ -118,5 +137,25 @@ export class FormularioComponent implements OnInit {
     this.destinos.clear();
     this.destinos.push(this.fb.control('', Validators.required));
     this.limpiarCotizacion.emit();
+  }
+
+  // ========================================================
+  // 🛡️ LOS GUARDIANES (Validación estricta de rutas)
+  // ========================================================
+  
+  // Revisa si una sola ruta es válida
+  esRutaValida(texto: string): boolean {
+    if (!texto) return false;
+    return this.cotizacionService.rutasConocidas.includes(texto);
+  }
+
+  // Revisa que EL ORIGEN y TODAS LAS PARADAS sean válidas
+  todasLasRutasSonValidas(): boolean {
+    const origen = this.formularioViaje.get('origen')?.value;
+    if (!this.esRutaValida(origen)) return false; // Si el origen falla, bloquea.
+
+    const paradas = this.formularioViaje.get('destinos')?.value || [];
+    // Si alguna parada falla, bloquea.
+    return paradas.every((parada: string) => this.esRutaValida(parada)); 
   }
 }

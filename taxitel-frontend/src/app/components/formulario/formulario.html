@@ -6,16 +6,34 @@
     <input type="search" formControlName="empresa" placeholder="🔎 Escriba para buscar empresa..." list="listaEmpresas" autocomplete="off" class="form-control">
   </div>
 
-  <div class="form-group">
+<div class="form-group">
     <label>Punto de Inicio</label>
-    <input type="text" formControlName="origen" placeholder="¿Dónde inicia el viaje?" list="listaRutas" autocomplete="off" (input)="buscarRutaEstrategica($event)">
+    <!-- 🌟 ESCUDOS ACTIVADOS: spellcheck, autocorrect y autocomplete -->
+    <input 
+      type="text" 
+      formControlName="origen" 
+      placeholder="¿Dónde inicia el viaje?" 
+      list="listaRutas" 
+      autocomplete="new-password"
+      spellcheck="false" 
+      autocorrect="off"
+      (input)="buscarRutaEstrategica($event)">
   </div>
 
   <div formArrayName="destinos">
     <div *ngFor="let dest of destinos.controls; let i=index" class="form-group parada-group">
       <label>Parada {{ i + 1 }}</label>
       <div class="input-con-boton">
-        <input type="text" [formControlName]="i" placeholder="Ingrese la dirección" list="listaRutas" autocomplete="off" (input)="buscarRutaEstrategica($event)">
+        <!-- 🌟 ESCUDOS ACTIVADOS TAMBIÉN EN LAS PARADAS -->
+        <input 
+          type="text" 
+          [formControlName]="i" 
+          placeholder="Ingrese la dirección" 
+          list="listaRutas" 
+          autocomplete="new-password"
+          spellcheck="false" 
+          autocorrect="off"
+          (input)="buscarRutaEstrategica($event)">
         <button *ngIf="destinos.length > 1" type="button" class="btn-eliminar" (click)="eliminarDestino(i)" title="Eliminar parada">✕</button>
       </div>
     </div>
@@ -41,7 +59,10 @@
   </div>
 
   <div class="botones-accion">
-    <button type="submit" class="btn-primario" [disabled]="formularioViaje.invalid">
+    <button 
+      type="button" 
+      (click)="calcular()"
+      [disabled]="formularioViaje.invalid || !todasLasRutasSonValidas()">
       Calcular Cotización
     </button>
     <button type="button" class="btn-secundario" (click)="nuevaConsulta()">
